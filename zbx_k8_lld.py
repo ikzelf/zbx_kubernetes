@@ -8,7 +8,7 @@ process = subprocess.Popen(["kubectl get pods -o json"],
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
                            close_fds=True)
-data = process.stdout.read().decode()
+data = json.loads(process.stdout.read().decode())
 err = process.stderr.read().decode()
 exit_code = process.wait()
 # with open("get_pods.json","r") as readfile:
