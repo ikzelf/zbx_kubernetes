@@ -3,7 +3,7 @@
 import json
 import subprocess
 
-process = subprocess.Popen(["kubectl get pods -o json",
+process = subprocess.Popen(["kubectl get pods -o json"],
                            shell=True,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
@@ -15,6 +15,7 @@ exit_code = process.wait()
     # data = json.load(readfile)
 
 containers = []
+# print(data)
 
 for i in data["items"]:
     # print("{} {} {:>5} {}".format(
