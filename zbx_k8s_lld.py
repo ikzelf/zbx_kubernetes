@@ -5,7 +5,7 @@ import subprocess
 import sys
 
 data = ""
-process = subprocess.Popen(["kubectlsss get pods -o json"],
+process = subprocess.Popen(["kubectl get pods -o json"],
                            shell=True,
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
@@ -40,3 +40,5 @@ if data:
     print("{\"data\":"+json.dumps(containers)+"}")
 else:
     print(err, file=sys.stderr)
+
+sys.exit(exit_code)
