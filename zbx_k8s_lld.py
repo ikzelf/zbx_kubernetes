@@ -19,24 +19,15 @@ err = process.stderr.read().decode()
     # data = json.load(readfile)
 
 containers = []
-# print(data)
 
 if data:
     for i in data["items"]:
-        # print("{} {} {:>5} {}".format(
-            # i["kind"],
-            # i["metadata"]["namespace"],
-            # i["metadata"]["resourceVersion"],
-            # i["metadata"]["name"]
-            # ))
 
         for c in i["spec"]["containers"]:
             e = {"{#NAME}": i["metadata"]["name"], "{#NAMESPACE}":
                     i["metadata"]["namespace"], "{#CONTAINER}": c["name"]}
-            # print("    {} {}".format(c["name"],c["image"]))
             containers.append(e)
 
-# print(containers)
     print("{\"data\":"+json.dumps(containers)+"}")
 else:
     print(err, file=sys.stderr)
