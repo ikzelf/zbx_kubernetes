@@ -19,3 +19,5 @@ zbx_k8s_lls.py returns a zabbix lld array containing for example:
   }
  ]
 }```
+
+I will happiliy add new features/tools so, tell what you would want to be added
