@@ -49,13 +49,19 @@ def to_cpus(s):
         cpus = int(ccount)
 
     return cpus
+zabbix_server_port = 10051
+zabbix_server = ""
 
-if len(sys.argv[1:]) < 3:
-    print("Usage {} zabbix_host zabbix_server zabbix_server_port".format(
+if len(sys.argv[1:]) < 1:
+    print("Usage {} zabbix_host [zabbix_server [zabbix_server_port]]".format(
         sys.argv[0]), file=sys.stderr)
     sys.exit(1)
-zabbix_server_port = sys.argv[3]
-zabbix_server = sys.argv[2]
+
+if len(sys.argv[1:]) >= 3:
+    zabbix_server_port = sys.argv[3]
+
+if len(sys.argv[1:]) >= 2:
+    zabbix_server = sys.argv[2]
 zabbix_host = sys.argv[1]
 data = ""
 process = subprocess.Popen(["kubectl get --raw /apis/metrics.k8s.io/v1beta1/pods"],
@@ -75,13 +81,14 @@ if data:
     # print(data["kind"])
     timestamp = int(time.time())
 
-    process = subprocess.Popen(["zabbix_sender -z {} -p {} -T -i - -r -vv"
-                                .format(zabbix_server, zabbix_server_port)],
-                               shell=True,
-                               stdin=subprocess.PIPE,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE,
-                               close_fds=True)
+    if zabbix_server:
+        process = subprocess.Popen(["zabbix_sender -z {} -p {} -T -i - -r -vv"
+                                    .format(zabbix_server, zabbix_server_port)],
+                                   shell=True,
+                                   stdin=subprocess.PIPE,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   close_fds=True)
 
     for i in data["items"]:
         # print("item:{}".format(i))
@@ -100,27 +107,37 @@ if data:
             msg="{} \"ns[{}] name[{}] container[{}] memory\" {} {}".format(
                 zabbix_host, namespace, pod, c['name'], str(timestamp),
                 bytess)
-            process.stdin.write(msg.encode())
+
+            if zabbix_server:
+                process.stdin.write(msg.encode())
+            else:
+                print(msg)
+
             msg = "{} \"ns[{}] name[{}] container[{}] cpu\" {} {}".format(
                 zabbix_host, namespace, pod, c['name'], str(timestamp),
                 cpus)
-            process.stdin.write(msg.encode())
 
-    res = process.communicate()[0].decode()
-    print("results zabbix_sender: {}".format(res))
-    exit_code = process.wait()
-    print("zabbix_sender exit_code: {}".format(exit_code))
+            if zabbix_server:
+                process.stdin.write(msg.encode())
+            else:
+                print(msg)
 
-    err = ""
-    try:
-        err = process.stderr.read().decode()
-    except ValueError as e:
-        print("zabbix_sender error msg: {}".format(err), file=sys.stderr)
-    output = ""
-    try:
-        output = process.stdout.read().decode()
-    except ValueError as e:
-        print("zabbix_sender output msg: {}".format(output))
+    if zabbix_server:
+        res = process.communicate()[0].decode()
+        print("results zabbix_sender: {}".format(res))
+        exit_code = process.wait()
+        print("zabbix_sender exit_code: {}".format(exit_code))
+
+        err = ""
+        try:
+            err = process.stderr.read().decode()
+        except ValueError as e:
+            print("zabbix_sender error msg: {}".format(err), file=sys.stderr)
+        output = ""
+        try:
+            output = process.stdout.read().decode()
+        except ValueError as e:
+            print("zabbix_sender output msg: {}".format(output))
 
 else:
     print(err, file=sys.stderr)
