@@ -6,19 +6,19 @@ zbx_k8s_lls.py returns a zabbix lld array containing for example:
      "{#NAME}": "coredns-5c98db65d4-62sdx"
   ,  "{#NAMESPACE}": "kube-system"
   ,  "{#CONTAINER}": "coredns"
-	,  "{#NODE}": "minikube"
+  ,  "{#NODE}": "minikube"
   }
   , {
      "{#NAME}": "coredns-5c98db65d4-z8mlp"
   ,  "{#NAMESPACE}": "kube-system"
   ,  "{#CONTAINER}": "coredns"
-	,  "{#NODE}": "minikube"
+  ,  "{#NODE}": "minikube"
   }
   , {
       "{#NAME}": "etcd-minikube"
   ,   "{#NAMESPACE}": "kube-system"
   ,   "{#CONTAINER}": "etcd"
-	,   "{#NODE}": "minikube"
+  ,   "{#NODE}": "minikube"
   }
  ]
 }```
