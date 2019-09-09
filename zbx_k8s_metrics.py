@@ -4,10 +4,34 @@
 # should work with python 2.7.14 and 3
 from __future__ import print_function
 import json
+import platform
 import subprocess
 import sys
 import time
 
+def send_msg(P, m, s, p):
+    if s:
+        P.stdin.write(m.encode())
+    else:
+        print(m)
+
+def get_sender_results(P, s):
+    if s:
+        res = P.communicate()[0].decode()
+        print("results zabbix_sender: {}".format(res))
+        exit_code = P.wait()
+        print("zabbix_sender exit_code: {}".format(exit_code))
+
+        err = ""
+        try:
+            err = P.stderr.read().decode()
+        except ValueError as e:
+            print("zabbix_sender error msg: {}".format(err), file=sys.stderr)
+        output = ""
+        try:
+            output = P.stdout.read().decode()
+        except ValueError as e:
+            print("zabbix_sender output msg: {}".format(output))
 
 def to_bytes(s):
     munit = s[-2:]
@@ -107,37 +131,15 @@ if data:
             msg="{} \"ns[{}] name[{}] container[{}] memory\" {} {}".format(
                 zabbix_host, namespace, pod, c['name'], str(timestamp),
                 bytess)
-
-            if zabbix_server:
-                process.stdin.write(msg.encode())
-            else:
-                print(msg)
+            send_msg(process, msg, zabbix_server, zabbix_server_port)
 
             msg = "{} \"ns[{}] name[{}] container[{}] cpu\" {} {}".format(
                 zabbix_host, namespace, pod, c['name'], str(timestamp),
                 cpus)
+            send_msg(process, msg, zabbix_server, zabbix_server_port)
 
-            if zabbix_server:
-                process.stdin.write(msg.encode())
-            else:
-                print(msg)
 
-    if zabbix_server:
-        res = process.communicate()[0].decode()
-        print("results zabbix_sender: {}".format(res))
-        exit_code = process.wait()
-        print("zabbix_sender exit_code: {}".format(exit_code))
-
-        err = ""
-        try:
-            err = process.stderr.read().decode()
-        except ValueError as e:
-            print("zabbix_sender error msg: {}".format(err), file=sys.stderr)
-        output = ""
-        try:
-            output = process.stdout.read().decode()
-        except ValueError as e:
-            print("zabbix_sender output msg: {}".format(output))
+    get_sender_results(process, zabbix_server)
 
 else:
     print(err, file=sys.stderr)
