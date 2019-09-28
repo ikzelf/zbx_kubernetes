@@ -27,3 +27,4 @@ I will happiliy add new features/tools so, tell what you would want to be added
 
 # zbx_k8s_metrics.py
 Currently reported metrics are CPU and memory usage for all containers found.
+Note: metrics server needs to be installed.
